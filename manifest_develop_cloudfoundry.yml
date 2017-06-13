@@ -12,6 +12,8 @@ env:
     TESTING: "False"
     CSRF_ENABLED: "True"
     SECRET_KEY: this-really-needs-to-be-changed
+    ONS_OAUTH_PROTOCOL: http://
+    ONS_OAUTH_SERVER: ons-oauth2.cfapps.io
     dbname: ras_frontstage_backup
     PARTYSERVICE_PROTOCOL: http://
     PARTYSERVICE_SERVER: ras-party.local.pcfdev.io

@@ -61,6 +61,8 @@ class OAuthUser(OAuthCredentials):
     ValidationError: {'__all__': [u'Email not unique']}
     """
     email = models.CharField(max_length=254, unique=True, validators=[EmailValidator()], )
+    first_name = models.CharField(max_length=254, blank=True, help_text="The users first name (Christian name)")
+    last_name = models.CharField(max_length=254, blank=True, help_text="The users second name (sir name)")
     failed_logins = models.IntegerField(default=0, help_text="How many consecutive times a user has used the wrong password")
     account_is_locked = models.BooleanField(default=False, help_text="This indicates if the account is locked")
     account_is_verified = models.BooleanField(default=False, help_text="This indicates if the account has been verified")
