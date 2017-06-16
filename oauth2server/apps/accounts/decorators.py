@@ -51,6 +51,7 @@ def validate_request(func):
     looks for a valid client and client_id. It then validates the username and password for size and duplicate accounts.
     If scope parameters are given they will be set if part of the system.
     If account active is set, the account will be set as active, otherwise it will be set as deactivated.
+    If the first name or last name are provided they will be set as part of the create request
     :param func:
     :return: decorator
     """
@@ -147,7 +148,7 @@ def validate_request(func):
         try:
             # Try create an OAuthUser object and validate that it's unique. Hence we just instantiate the object.
             stdlogger.info("Trying to create user: {}".format(username))
-            user = OAuthUser(email=username, password=password)
+            user = OAuthUser(email=username, password=password, first_name="No name given", last_name="No name given")
             user.validate_unique()
 
         except ValidationError:
@@ -156,6 +157,36 @@ def validate_request(func):
 
         # OK we pass all validation checks pass the user object back in the request
         request.user = user
+
+
+
+    def _extract_firstname(request):
+        stdlogger.info( "Running extracting active method to extract users first name")
+
+        """
+        Tries to extract users first name from the request.
+        It first looks for Authorization header, then tries POST data.
+        Assigns client object to the request for later use.
+        :param request:
+        :return:
+        """
+
+
+        try:
+            first_name = request.POST['first_name']
+            request.user.first_name = first_name
+        except KeyError:
+            try:
+                first_name = request.GET['first_name']
+                request.user.first_name = first_name
+                stdlogger.info("User has a first name of: {}".format(first_name))
+            except KeyError:
+                #raise UsernameRequiredException()
+                # This is an optional parameter so set it as false if it is not present
+                request.user.first_name = "No name given"
+                stdlogger.info("User has no first name being set")
+
+
 
 
 
@@ -218,10 +249,10 @@ def validate_request(func):
 
     def decorator(request, *args, **kwargs):
         stdlogger.debug( "decorator is hit for administration REST interface...")
-        #_validate_grant_type(request=request)
         _extract_client(request=request)
         _extract_username(request=request)
         _extract_active(request=request)
+        _extract_firstname(request=request)
         #_extract_scope(request=request)
 
         return func(request, *args, **kwargs)

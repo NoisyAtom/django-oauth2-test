@@ -5,6 +5,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.db import IntegrityError, InternalError, DataError, DatabaseError
+from proj.exceptions import DatabaseFailureException
 import logging
 
 stdlogger = logging.getLogger(__name__)
@@ -26,9 +27,14 @@ class AccountView(APIView):
         :param args:
         :param kwargs:
         :return: Serialised JSON Response Object to indicate the resource has been created
+
+        To test with a curl script you can try:
+
+        curl -X POST http://localhost:8040/api/account/create/ -u ons@ons.gov:password -d 'username=nick@email.com&password=password&client_id=ons@ons.gov@client_secret=password'
+
         """
-        stdlogger.info( "Hitting post account view method")
-        stdlogger.debug( "User object is: ", request.user )
+        stdlogger.info("Hitting post account view method")
+        stdlogger.debug("User object is: {}".format(request.user))
 
         # Try and persist the user to the DB. Remember this could fail a data integrity check if some other system has
         # saved this user before we run this line of code!
@@ -50,4 +56,4 @@ class AccountView(APIView):
     def get(self, request):
         stdlogger.info( "Hitting get account view method")
 
-        return Response(data={"name":"nherriot@email.com", "id":"0001","status":"deactivated"}, status=status.HTTP_201_CREATED,)
+        return Response(data={"error":"User details cannot be accessed this way. Only user tokens can be provided"}, status=status.HTTP_400_BAD_REQUEST,)

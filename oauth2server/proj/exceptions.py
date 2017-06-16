@@ -109,6 +109,12 @@ class AuthorizationCodeNotFoundException(APIException):
     default_detail = _(u'Authorization code not found')
 
 
+class UserDetailsNotAccesable(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_error = u'invalid_request'
+    default_detail = _(u'User details cannot be accessed this way. Only user tokens can be provided')
+
+
 class RefreshTokenNotFoundException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_error = u'invalid_request'
