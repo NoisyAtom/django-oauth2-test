@@ -120,7 +120,7 @@ def validate_request(func):
 
         try:
             username = request.POST['username']
-            stdlogger.info( "username from POST is: {}".format(password))
+            stdlogger.info( "username from POST is: {}".format(username))
         except KeyError:
             try:
                 username = request.GET['username']
@@ -158,23 +158,25 @@ def validate_request(func):
         # OK we pass all validation checks pass the user object back in the request
         request.user = user
 
-
-
     def _extract_firstname(request):
-        stdlogger.info( "Running extracting active method to extract users first name")
+        stdlogger.info( "Running extracting firstname method to extract users first name")
 
         """
         Tries to extract users first name from the request.
         It first looks for Authorization header, then tries POST data.
-        Assigns client object to the request for later use.
+        Assigns client object to the request for later use. The user object needs to be present in the request object
+        already for this to work, which should have been added by extracting the OAuth2 user name from the GET/POST
+        message.
+
+        This is an optional parameter. So if it is not present we don't care.
         :param request:
         :return:
         """
 
-
         try:
             first_name = request.POST['first_name']
             request.user.first_name = first_name
+            stdlogger.info("User has a first name of: {}".format(first_name))
         except KeyError:
             try:
                 first_name = request.GET['first_name']
@@ -186,17 +188,45 @@ def validate_request(func):
                 request.user.first_name = "No name given"
                 stdlogger.info("User has no first name being set")
 
-
-
-
-
-    def _extract_active(request):
-        stdlogger.info( "Running extracting active method to extract user name and password")
+    def _extract_lastname(request):
+        stdlogger.info( "Running extracting lastname method to extract users last name")
 
         """
-        Tries to extract username and password from the request.
+        Tries to extract users last name from the request.
         It first looks for Authorization header, then tries POST data.
-        Assigns client object to the request for later use.
+        Assigns client object to the request for later use. The user object needs to be present in the request object
+        already for this to work, which should have been added by extracting the OAuth2 user name from the GET/POST
+        message.
+
+        This is an optional parameter. So if it is not present we don't care.
+        :param request:
+        :return:
+        """
+
+        try:
+            last_name = request.POST['last_name']
+            request.user.last_name = last_name
+            stdlogger.info("User has a last name of: {}".format(last_name))
+        except KeyError:
+            try:
+                last_name = request.GET['last_name']
+                request.user.last_name = last_name
+                stdlogger.info("User has a last name of: {}".format(last_name))
+            except KeyError:
+                #raise UsernameRequiredException()
+                # This is an optional parameter so set it as false if it is not present
+                request.user.last_name = "No name given"
+                stdlogger.info("User has no last name being set")
+
+    def _extract_active(request):
+        stdlogger.info( "Running extracting active method to extract if the account is active or not")
+
+        """
+        Tries to extract the 'Active' flag. Active means the account is active and has been verified. If the flag is
+        not present or set as FALSE then the account has not been verified.
+        It first looks for Authorization header, then tries POST data.
+        Assigns client object to the request for later use. This is an optional parameter. If it is not present then the
+        account is deemed to be not active. i.e. not verified
         :param request:
         :return:
         """
@@ -213,7 +243,6 @@ def validate_request(func):
                 # This is an optional parameter so set it as false if it is not present
                 request.user.account_is_verified = False
                 request.account_verified = False
-
 
     def _extract_scope(request):
         """
@@ -253,6 +282,7 @@ def validate_request(func):
         _extract_username(request=request)
         _extract_active(request=request)
         _extract_firstname(request=request)
+        _extract_lastname(request=request)
         #_extract_scope(request=request)
 
         return func(request, *args, **kwargs)

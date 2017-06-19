@@ -28,9 +28,16 @@ class AccountView(APIView):
         :param kwargs:
         :return: Serialised JSON Response Object to indicate the resource has been created
 
-        To test with a curl script you can try:
+        To test with a curl script and a client ID and client secret via your django admin interface.
+        Add a user with the same name in your users table as we use basic authentication as a minimum. Then you can try:
 
+
+        1) An OAuth2 user with password and a ClientID and Client secret. Minimum set of mandatory values
         curl -X POST http://localhost:8040/api/account/create/ -u ons@ons.gov:password -d 'username=nick@email.com&password=password&client_id=ons@ons.gov@client_secret=password'
+
+        2) An OAuth2 user with password and a ClientID and Client secret. Minimum set of mandatory values
+        curl -X POST http://localhost:8040/api/account/create/ -u ons@ons.gov:password -d 'username=nick@email.com&password=password&client_id=ons@ons.gov@client_secret=password'
+
 
         """
         stdlogger.info("Hitting post account view method")
